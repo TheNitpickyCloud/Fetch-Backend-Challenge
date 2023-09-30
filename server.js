@@ -26,7 +26,17 @@ app.post('/spend', (req, res) => {
     return a.timestamp - b.timestamp
   })
 
-  const spendList = []
+  const balanceMap = {}
+  for(const transaction of transactions){
+    if(transaction.payer in balanceMap){
+      balanceMap[transaction.payer] += transaction.points
+    }
+    else{
+      balanceMap[transaction.payer] = transaction.points
+    }
+  }
+
+  const prevBalanceMap = JSON.parse(JSON.stringify(balanceMap))
   const newTransactions = JSON.parse(JSON.stringify(transactions))
   let spend = parseInt(req.body.points)
 
@@ -35,9 +45,7 @@ app.post('/spend', (req, res) => {
     transaction.points -= sub
     spend -= sub
 
-    if(sub > 0){
-      spendList.push({"payer": transaction.payer, "points": 0-sub})
-    }
+    balanceMap[transaction.payer] -= sub
   }
 
   if(spend > 0){
@@ -45,15 +53,25 @@ app.post('/spend', (req, res) => {
   }
   else{
     transactions = JSON.parse(JSON.stringify(newTransactions))
+
+    const spendList = []
+    for(const payer of Object.keys(balanceMap)){
+      spendList.push({"payer": payer, "points": balanceMap[payer] - prevBalanceMap[payer]})
+    }
+
     res.status(200).send(spendList)
   }
 })
 
 app.get('/balance', (req, res) => {
   const balanceMap = {}
-
   for(const transaction of transactions){
-    balanceMap[transaction.payer] = transaction.points
+    if(transaction.payer in balanceMap){
+      balanceMap[transaction.payer] += transaction.points
+    }
+    else{
+      balanceMap[transaction.payer] = transaction.points
+    }
   }
 
   res.status(200).send(balanceMap)
