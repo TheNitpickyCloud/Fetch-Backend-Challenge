@@ -1,7 +1,7 @@
-test('add a transaction', () => {
+test('add a transaction', async () => {
   const data = { "payer": "DANNON", "points": 300, "timestamp": "2022-10-31T10:00:00Z" }
 
-  fetch('http://localhost:8000/add', {
+  await fetch('http://localhost:8000/add', {
     method: "POST", 
     headers: {
       "Content-Type": "application/json",
@@ -30,7 +30,7 @@ test('handle having less points than required', async () => {
     })
   }
 
-  fetch('http://localhost:8000/spend', {
+  await fetch('http://localhost:8000/spend', {
     method: "POST", 
     headers: {
       "Content-Type": "application/json",
@@ -44,8 +44,8 @@ test('handle having less points than required', async () => {
   })
 })
 
-test('handle having enough points', () => {
-  fetch('http://localhost:8000/spend', {
+test('handle having enough points', async () => {
+  await fetch('http://localhost:8000/spend', {
     method: "POST", 
     headers: {
       "Content-Type": "application/json",
@@ -63,8 +63,8 @@ test('handle having enough points', () => {
   })
 })
 
-test('check the balance remaining', () => {
-  fetch('http://localhost:8000/balance', {
+test('check the balance remaining', async () => {
+  await fetch('http://localhost:8000/balance', {
     method: "GET", 
   }).then(res => {
     expect(res.status).toBe(200)
